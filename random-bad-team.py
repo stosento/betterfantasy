@@ -4,8 +4,14 @@ import cfbd
 from datetime import datetime
 import random
 from tqdm import tqdm
+import os
+from dotenv import load_dotenv
 # from utils import TwilioTexter
-from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, FANTASY_TEAMS, CFBD_API_KEY
+from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, FANTASY_TEAMS
+
+load_dotenv()
+
+CFBD_API_KEY = os.getenv('CFBD_API_KEY')
 
 # Configure API key authorization: ApiKeyAuth
 configuration = cfbd.Configuration()

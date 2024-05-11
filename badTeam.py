@@ -1,7 +1,7 @@
 import pandas as pd
 from time import sleep
 import cfbd
-from datetime import datetime
+from datetime import datetime, date
 import random
 from tqdm import tqdm
 import os
@@ -23,9 +23,6 @@ fpi_rnk_df = pd.read_html(ESPN_FPI_URL)[0]
 
 NUM_FANTASY_TEAMS = len(FANTASY_TEAMS)
 # twilio_texter = TwilioTexter()
-
-test_date = datetime.strptime('2024-08-28', '%Y-%m-%d').date()
-print('Test date: ', test_date)
 
 def get_date(date_str):
     return pd.to_datetime(date_str).date()
@@ -95,7 +92,7 @@ def get_team_fpi_rating(team_name):
 
 def get_team_record(team_name):
     api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    record = api_instance.get_team_records(year=datetime.today().year, team=team_name)
+    record = api_instance.get_team_records(year=2023, team=team_name) #TODO - Update with param for accepting a year ()
     try:
         total_record = record[0].total
         record_str = f'{total_record.wins}-{total_record.losses}'
@@ -119,7 +116,7 @@ def format_game_info_for_text(fantasy_team, team, game, team_record):
     message = f'{fantasy_team} has {body}'
     return message
 
-def main():
+def main(target_date):
     # Retrieve valid teams within our acceptable conferences
     all_teams = get_conference_teams()
     print('Got teams.')
@@ -130,10 +127,7 @@ def main():
     for team in tqdm(all_teams):
         sleep(0.5)
         try:
-            has_game = team_has_game_this_week(team, test_date)
-            if has_game:
-                api_instance = cfbd.RatingsApi(cfbd.ApiClient(configuration))
-
+            if team_has_game_this_week(team, target_date):
                 keep_teams_fpi[team] = get_team_fpi_rating(team)
         except:
             print("Couldn't get schedule for: {}".format(team))
@@ -154,7 +148,7 @@ def main():
 
     text_lines = []
     for fantasy_team, team in pairs.items():
-        next_game = get_next_game(team, test_date)
+        next_game = get_next_game(team, target_date)
         team_record = get_team_record(team)
 
         text_body = format_game_info_for_text(fantasy_team, team, next_game, team_record)
@@ -165,6 +159,8 @@ def main():
     print('Full text body: ', full_text_body)
 
     # twilio_texter.send_text(to_number='+17346523203', body=full_text_body)
+
+    return full_text_body
 
 if __name__ == '__main__':
     main()

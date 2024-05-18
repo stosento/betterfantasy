@@ -53,7 +53,7 @@ def get_team_schedule(team_name, date):
 
 
 def get_next_game(team_name, date): # TODO - Update with param for accepting a date
-    todays_date = date
+    todays_date = get_date(date)
 
     team_schedule = get_team_schedule(team_name, todays_date)
 
@@ -72,7 +72,7 @@ def get_next_game(team_name, date): # TODO - Update with param for accepting a d
 
 def team_has_game_this_week(team_name, date):
     #todays_date = datetime.today().date() # TODO - Update with param for accepting a date
-    todays_date = date
+    todays_date = get_date(date)
 
     team_next_game = get_next_game(team_name, todays_date)
 
@@ -116,7 +116,15 @@ def format_game_info_for_text(fantasy_team, team, game, team_record):
     message = f'{fantasy_team} has {body}'
     return message
 
+def format_date(week_str):
+    parts = week_str.split("-")
+    extracted_date = parts[1].strip()
+    return extracted_date + "/2024"
+
 def main(target_date):
+    # Parse date from enum string
+    target_date = format_date(target_date)
+
     # Retrieve valid teams within our acceptable conferences
     all_teams = get_conference_teams()
     print('Got teams.')

@@ -1,7 +1,8 @@
 from typing import Union
 from datetime import date
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
+from constants import WEEKS
 
 import badTeam
 
@@ -18,6 +19,6 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 @app.get("/stinkers")
-def get_stinkers(target_date: date):
-    stinkers = badTeam.main(target_date)
+def get_stinkers(week: str = Query(WEEKS[0], enum=WEEKS)):
+    stinkers = badTeam.main(week)
     return {"stinkers": stinkers}

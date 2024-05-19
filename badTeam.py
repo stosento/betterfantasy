@@ -6,8 +6,8 @@ import random
 from tqdm import tqdm
 import os
 from dotenv import load_dotenv
-# from utils import TwilioTexter
-from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, FANTASY_TEAMS
+from utils import TwilioTexter
+from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, FANTASY_TEAMS, TWILIO_NUMBER
 
 load_dotenv()
 
@@ -22,7 +22,7 @@ configuration.api_key_prefix['Authorization'] = 'Bearer'
 fpi_rnk_df = pd.read_html(ESPN_FPI_URL)[0]
 
 NUM_FANTASY_TEAMS = len(FANTASY_TEAMS)
-# twilio_texter = TwilioTexter()
+twilio_texter = TwilioTexter()
 
 def get_date(date_str):
     return pd.to_datetime(date_str).date()
@@ -71,7 +71,6 @@ def get_next_game(team_name, date): # TODO - Update with param for accepting a d
 
 
 def team_has_game_this_week(team_name, date):
-    #todays_date = datetime.today().date() # TODO - Update with param for accepting a date
     todays_date = get_date(date)
 
     team_next_game = get_next_game(team_name, todays_date)
@@ -82,7 +81,9 @@ def team_has_game_this_week(team_name, date):
 
 def get_team_fpi_rating(team_name):
     api_instance = cfbd.RatingsApi(cfbd.ApiClient(configuration))
-    api_response = api_instance.get_fpi_ratings(year='2023', team=team_name) #TODO - Update with param for accepting a year
+    api_response = api_instance.get_fpi_ratings(year='2024', team=team_name)
+    if (api_response is None) or (len(api_response) == 0):
+        api_response = api_instance.get_fpi_ratings(year='2023', team=team_name)
     try:
         fpi = api_response[0].fpi
         return fpi
@@ -92,7 +93,9 @@ def get_team_fpi_rating(team_name):
 
 def get_team_record(team_name):
     api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    record = api_instance.get_team_records(year=2023, team=team_name) #TODO - Update with param for accepting a year ()
+    record = api_instance.get_team_records(year=2024, team=team_name)
+    if (record is None) or (len(record) == 0):
+        record = api_instance.get_team_records(year=2023, team=team_name)
     try:
         total_record = record[0].total
         record_str = f'{total_record.wins}-{total_record.losses}'
@@ -121,7 +124,7 @@ def format_date(week_str):
     extracted_date = parts[1].strip()
     return extracted_date + "/2024"
 
-def main(target_date):
+def main(target_date, send_text):
     # Parse date from enum string
     target_date = format_date(target_date)
 
@@ -166,7 +169,9 @@ def main(target_date):
 
     print('Full text body: ', full_text_body)
 
-    # twilio_texter.send_text(to_number='+17346523203', body=full_text_body)
+    if send_text:
+        print('Sending text!')
+        twilio_texter.send_text(to_number=TWILIO_NUMBER, body=full_text_body)
 
     return full_text_body
 

@@ -40,3 +40,4 @@ FANTASY_TEAMS = ['Matt', 'Stephen', 'Kyle', 'Tyler', 'Andrew', 'Evan']
 FB_OUTSIDERS_PATH = '/Volumes/projects/cfb-data/f-plus-scores'
 
 CFBD_API_KEY = 'Y93uWDLP1Hfv2A5qawejLKtXHjWbOmfQxsuyI2nXCo201bpeI3xtFipeGZilPHDr'
+TWILIO_NUMBER = '+17346523203'

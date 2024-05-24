@@ -7,7 +7,15 @@ from tqdm import tqdm
 import os
 from dotenv import load_dotenv
 from utils import TwilioTexter
-from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, FANTASY_TEAMS, TWILIO_NUMBER
+from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, TWILIO_NUMBER
+
+from populators.stinkers import (
+    create_game_info,
+    create_stinker,
+    create_stinker_info,
+    create_text_info,
+    create_stinker_week
+)
 
 load_dotenv()
 
@@ -110,6 +118,11 @@ def get_bottom_n_teams(fpi_dict, bottom_n):
 
 def format_game_info_for_text(fantasy_team, team, game, team_record):
     team_info = f'{team} ({team_record})'
+
+    print("Game: ", game)
+    print("Team: ", team)
+    print("Team record: ", team_record)
+    print("Fantasy team: ", fantasy_team)
 
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team

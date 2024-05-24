@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from typing import List
 from constants import WEEKS, FANTASY_TEAMS
 
+from models.stinkers import StinkerInfo
+
 import badTeam
 
 class Teams(BaseModel):
@@ -13,7 +15,9 @@ class Teams(BaseModel):
 
 app = FastAPI()
 
-@app.post("/stinkers")
-def find_stinkers(fantasyTeams: Teams, week: str = Query(WEEKS[0], enum=WEEKS), sendText: bool = False):
+@app.post("/stinkers", response_model=List[StinkerInfo])
+def find_stinkers(fantasyTeams: Teams, 
+                  week: str = Query(WEEKS[0], enum=WEEKS), 
+                  sendText: bool = False):
     stinkers = badTeam.main(week, sendText, fantasyTeams.teams)
     return {"stinkers": stinkers}

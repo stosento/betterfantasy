@@ -21,7 +21,6 @@ configuration.api_key_prefix['Authorization'] = 'Bearer'
 # Read in FPI data
 fpi_rnk_df = pd.read_html(ESPN_FPI_URL)[0]
 
-NUM_FANTASY_TEAMS = len(FANTASY_TEAMS)
 twilio_texter = TwilioTexter()
 
 def get_date(date_str):
@@ -52,7 +51,7 @@ def get_team_schedule(team_name, date):
     return team_schedule
 
 
-def get_next_game(team_name, date): # TODO - Update with param for accepting a date
+def get_next_game(team_name, date):
     todays_date = get_date(date)
 
     team_schedule = get_team_schedule(team_name, todays_date)
@@ -104,7 +103,7 @@ def get_team_record(team_name):
     return record_str
 
 
-def get_bottom_n_teams(fpi_dict, bottom_n=NUM_FANTASY_TEAMS):
+def get_bottom_n_teams(fpi_dict, bottom_n):
     sorted_dict = dict(sorted(fpi_dict.items(), key=lambda item: item[1]))
     return list(sorted_dict.keys())[0:bottom_n]
 
@@ -124,7 +123,7 @@ def format_date(week_str):
     extracted_date = parts[1].strip()
     return extracted_date + "/2024"
 
-def main(target_date, send_text):
+def main(target_date, send_text, fantasy_teams):
     # Parse date from enum string
     target_date = format_date(target_date)
 
@@ -146,15 +145,15 @@ def main(target_date, send_text):
     print('Finished cfb data part!')
 
     # Extract the worst N teams from our map
-    bottom_teams = get_bottom_n_teams(keep_teams_fpi)
+    bottom_teams = get_bottom_n_teams(keep_teams_fpi, len(fantasy_teams))
 
     # Shuffle each list
-    random.shuffle(FANTASY_TEAMS)
+    random.shuffle(fantasy_teams)
     random.shuffle(bottom_teams)
 
     # Create a tuple for each fantasy team and the team they will be assigned
     pairs = {}
-    for team, fantasy_team in zip(bottom_teams, FANTASY_TEAMS):
+    for team, fantasy_team in zip(bottom_teams, fantasy_teams):
         pairs[fantasy_team] = team
 
     text_lines = []

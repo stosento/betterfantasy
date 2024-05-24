@@ -1,9 +1,11 @@
+import os
 from twilio.rest import Client
 from dotenv import load_dotenv
 
 class TwilioTexter():
     def __init__(self):
-        self.client = self.get_twilio_client()
+        # self.client = self.get_twilio_client()
+        print("TwilioTexter initialized")
     
     def get_twilio_client(self):
 

@@ -1,15 +1,14 @@
 import pandas as pd
-from time import sleep
-import cfbd
-from datetime import datetime, date
-import random
-from tqdm import tqdm
 import os
+import random
+import cfbd
+from time import sleep
+from datetime import datetime
+from tqdm import tqdm
 from dotenv import load_dotenv
 from utils import TwilioTexter
-from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, TWILIO_NUMBER
-import json
 
+from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES
 from populators.stinkers import (
     create_game_info,
     create_stinker,
@@ -21,6 +20,7 @@ from populators.stinkers import (
 load_dotenv()
 
 CFBD_API_KEY = os.getenv('CFBD_API_KEY')
+TWILIO_NUMBER = os.getenv('TWILIO_NUMBER')
 
 # Configure API key authorization: ApiKeyAuth
 configuration = cfbd.Configuration()
@@ -116,25 +116,21 @@ def get_bottom_n_teams(fpi_dict, bottom_n):
     sorted_dict = dict(sorted(fpi_dict.items(), key=lambda item: item[1]))
     return list(sorted_dict.keys())[0:bottom_n]
 
-
-def build_stinker_info(fantasy_team, team, game, team_record):
+def build_message(fantasy_team, team, game, team_record):
     team_info = f'{team} ({team_record})'
-
-    # Map "fantasy_team" to fantasyTeam
-    # "stinkerTeam.stinker" -> "team"
-    # "stinkerTeam.record" -> "team_record"
-    # "gameInfo" -> "game"
-        # opponent -> home_team OR away_team, depending on which != team
-        # dateTime -> Include date, check if start_time_tbd is True, if so, include "TBD" as the time
-        # homeTeam -> home_team
 
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team
     body = f'{team_info}, {"home vs" if is_home else "playing @"} {opponent_info}'
     message = f'{fantasy_team} has {body}'
 
-    game_info = create_game_info(home_team=game.home_team, away_team=game.away_team, kickoff=game.start_date)
+    return message
+
+def build_stinker_info(fantasy_team, team, game, team_record):
+    message = build_message(fantasy_team, team, game, team_record)
+
     stinker = create_stinker(team=team, record=team_record)
+    game_info = create_game_info(home_team=game.home_team, away_team=game.away_team, kickoff=game.start_date)
     stinker_info = create_stinker_info(fantasy_team=fantasy_team, stinker=stinker, game_info=game_info, text_line=message)
     
     return stinker_info

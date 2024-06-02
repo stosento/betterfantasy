@@ -18,7 +18,6 @@ CFB_REFERENCE_NAME_EXCEPTIONS = {
     'SMU': 'Southern Methodist'
 }
 WEEKS = [
-    'Week 0 - 8/24',
     'Week 1 - 8/29-9/2',
     'Week 2 - 9/6-9/7',
     'Week 3 - 9/12-9/14',

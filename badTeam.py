@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from utils import TwilioTexter
 from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES, TWILIO_NUMBER
+import json
 
 from populators.stinkers import (
     create_game_info,
@@ -116,20 +117,27 @@ def get_bottom_n_teams(fpi_dict, bottom_n):
     return list(sorted_dict.keys())[0:bottom_n]
 
 
-def format_game_info_for_text(fantasy_team, team, game, team_record):
+def build_stinker_info(fantasy_team, team, game, team_record):
     team_info = f'{team} ({team_record})'
 
-    print("Game: ", game)
-    print("Team: ", team)
-    print("Team record: ", team_record)
-    print("Fantasy team: ", fantasy_team)
+    # Map "fantasy_team" to fantasyTeam
+    # "stinkerTeam.stinker" -> "team"
+    # "stinkerTeam.record" -> "team_record"
+    # "gameInfo" -> "game"
+        # opponent -> home_team OR away_team, depending on which != team
+        # dateTime -> Include date, check if start_time_tbd is True, if so, include "TBD" as the time
+        # homeTeam -> home_team
 
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team
     body = f'{team_info}, {"home vs" if is_home else "playing @"} {opponent_info}'
-
     message = f'{fantasy_team} has {body}'
-    return message
+
+    game_info = create_game_info(home_team=game.home_team, away_team=game.away_team, kickoff=game.start_date)
+    stinker = create_stinker(team=team, record=team_record)
+    stinker_info = create_stinker_info(fantasy_team=fantasy_team, stinker=stinker, game_info=game_info, text_line=message)
+    
+    return stinker_info
 
 def format_date(week_str):
     parts = week_str.split("-")
@@ -169,23 +177,25 @@ def main(target_date, send_text, fantasy_teams):
     for team, fantasy_team in zip(bottom_teams, fantasy_teams):
         pairs[fantasy_team] = team
 
-    text_lines = []
+    stinker_info_list = []
     for fantasy_team, team in pairs.items():
         next_game = get_next_game(team, target_date)
         team_record = get_team_record(team)
 
-        text_body = format_game_info_for_text(fantasy_team, team, next_game, team_record)
-        text_lines.append(text_body)
+        stinker_info = build_stinker_info(fantasy_team, team, next_game, team_record)
+        stinker_info_list.append(stinker_info)
 
-    full_text_body = '\n'.join(text_lines)
-
+    full_text_body = "\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
     print('Full text body: ', full_text_body)
 
     if send_text:
         print('Sending text!')
         twilio_texter.send_text(to_number=TWILIO_NUMBER, body=full_text_body)
 
-    return full_text_body
+    text_info = create_text_info(sent=send_text, to=TWILIO_NUMBER, body=full_text_body)
+    stinker_week = create_stinker_week(date=target_date, stinkers=stinker_info_list, text_info=text_info)
+
+    return stinker_week
 
 if __name__ == '__main__':
     main()

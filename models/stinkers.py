@@ -5,7 +5,6 @@ class GameInfo(BaseModel):
     home_team: str
     away_team: str
     kickoff: str
-    spread: str
 
 class Stinker(BaseModel):
     team: str
@@ -15,6 +14,7 @@ class StinkerInfo(BaseModel):
     fantasy_team: str
     stinker: Stinker
     game_info: GameInfo
+    text_line: str
 
 class TextInfo(BaseModel):
     sent: bool

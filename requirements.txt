@@ -2,3 +2,6 @@ fastapi
 uvicorn
 pandas
 tqdm
+cfbd
+twilio
+lxml

@@ -35,5 +35,3 @@ WEEKS = [
 ]
 ACCEPTABLE_CONFERENCES = ['ACC', 'Pac-12', 'SEC', 'Big 12', 'Big Ten']
 FANTASY_TEAMS = ['Matt', 'Stephen', 'Kyle', 'Tyler', 'Andrew', 'Evan']
-
-CFBD_API_KEY = 'Y93uWDLP1Hfv2A5qawejLKtXHjWbOmfQxsuyI2nXCo201bpeI3xtFipeGZilPHDr'

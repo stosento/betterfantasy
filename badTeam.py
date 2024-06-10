@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import random
 import cfbd
+import time
 from time import sleep
 from datetime import datetime
 from tqdm import tqdm
@@ -98,6 +99,31 @@ def get_team_fpi_rating(team_name):
     except:
         print(f'Cannot find FPI for {team_name}')
 
+def get_fpi_ratings_map():
+    api_instance = cfbd.RatingsApi(cfbd.ApiClient(configuration))
+    api_response = api_instance.get_fpi_ratings(year='2024')
+    if (api_response is None) or (len(api_response) == 0):
+        api_response = api_instance.get_fpi_ratings(year='2023')
+    fpi_dict = {}
+    for team in api_response:
+        # Only add to dict if part of our conferences
+        if team.conference in ACCEPTABLE_CONFERENCES:
+            fpi_dict[team.team] = team.fpi
+    return fpi_dict
+
+def get_next_week_games(week):
+    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    games = api_instance.get_games(year=2024, week=week, season_type='regular')
+    return games
+
+def filter_games_by_conferences(games, conference):
+    result = {}
+    for game in games:
+        if game.home_conference in conference:
+            result[game.home_team] = game
+        if game.away_conference in conference:
+            result[game.away_team] = game
+    return result
 
 def get_team_record(team_name):
     api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
@@ -140,16 +166,52 @@ def format_date(week_str):
     extracted_date = parts[1].strip()
     return extracted_date + "/2024"
 
+def extract_week(week_str):
+    return int(week_str.split("-")[0].split(" ")[1].strip())
+
+def get_bottom_games(teams, games):
+    return {team: games[team] for team in teams if team in games}
+
 def main(target_date, send_text, fantasy_teams):
+    week = extract_week(target_date)
+
     # Parse date from enum string
     target_date = format_date(target_date)
 
+    # Build the next week's games we care about
+    next_week_games = get_next_week_games(week)
+    next_week_relevant_games_map = filter_games_by_conferences(next_week_games, ACCEPTABLE_CONFERENCES)
+
+    # Get FPI Ratings Map
+    fpi_ratings_map = get_fpi_ratings_map()
+
+    # Limit our map to those that are in the next week relevant games
+    fpi_ratings_map = {k: v for k, v in fpi_ratings_map.items() if k in next_week_relevant_games_map.keys()}
+
+    # Sort the map by FPI rating, lowest to highest
+    fpi_ratings_map = dict(sorted(fpi_ratings_map.items(), key=lambda item: item[1]))
+
+    # Extract the worst N teams from our map & get the game details for each
+    bottom_teams = list(fpi_ratings_map.keys())[0:len(fantasy_teams)]
+    bottom_games = get_bottom_games(bottom_teams, next_week_relevant_games_map)
+
+    # TODO - Build the record map for the bottom teams
+
+    # TODO - Convert the game details into a list of stinker info objects
+
+    # TODO - Shuffle the fantasy teams, games and match them
+
+    # TODO - Build the response object
+
+
+
+    # REMOVE THE ITEMS BELOW
+    return;
+
     # Retrieve valid teams within our acceptable conferences
     all_teams = get_conference_teams()
-    print('Got teams.')
 
     # Building map of {team -> FPI Ranking} for those teams that have a game in the upcoming week
-    print('Getting schedules.')
     keep_teams_fpi = {}
     for team in tqdm(all_teams):
         sleep(0.5)
@@ -158,8 +220,6 @@ def main(target_date, send_text, fantasy_teams):
                 keep_teams_fpi[team] = get_team_fpi_rating(team)
         except:
             print("Couldn't get schedule for: {}".format(team))
-        
-    print('Finished cfb data part!')
 
     # Extract the worst N teams from our map
     bottom_teams = get_bottom_n_teams(keep_teams_fpi, len(fantasy_teams))

@@ -36,69 +36,6 @@ twilio_texter = TwilioTexter()
 def get_date(date_str):
     return pd.to_datetime(date_str).date()
 
-
-def get_conference_teams(ACCEPTABLE_CONFERENCES=ACCEPTABLE_CONFERENCES, EXCEPTIONS=CFB_REFERENCE_NAME_EXCEPTIONS):
-    api_instance = cfbd.TeamsApi(cfbd.ApiClient(configuration))
-    teams = api_instance.get_fbs_teams(year=datetime.today().year)
-
-    valid_teams = []
-    for team in teams:
-        team_name = team.school
-        team_conference = team.conference
-        
-        if team_conference in ACCEPTABLE_CONFERENCES:
-            valid_teams.append(team_name)
-
-    return valid_teams
-
-
-def get_team_schedule(team_name, date):
-    todays_date = date
-
-    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    team_schedule = api_instance.get_games(year=todays_date.year, team=team_name)
-
-    return team_schedule
-
-
-def get_next_game(team_name, date):
-    todays_date = get_date(date)
-
-    team_schedule = get_team_schedule(team_name, todays_date)
-
-    game_dates = [get_date(game.start_date) for game in team_schedule]
-    next_game_date = min(filter(lambda x: x >= todays_date, game_dates))
-
-    # get first (and only) element from iterator
-    next_game = list(filter(lambda x: get_date(x.start_date) == next_game_date, team_schedule))
-    if len(next_game) == 0:
-        print(f'Could not find next game for {team_name}')
-        next_game = None
-    else:
-        next_game = next_game[0]
-    return next_game
-
-
-def team_has_game_this_week(team_name, date):
-    todays_date = get_date(date)
-
-    team_next_game = get_next_game(team_name, todays_date)
-
-    team_next_game_date = get_date(team_next_game.start_date)
-    return (team_next_game_date - todays_date).days <= 5  # set at 5 to allow for weird day of week games 
-
-
-def get_team_fpi_rating(team_name):
-    api_instance = cfbd.RatingsApi(cfbd.ApiClient(configuration))
-    api_response = api_instance.get_fpi_ratings(year='2024', team=team_name)
-    if (api_response is None) or (len(api_response) == 0):
-        api_response = api_instance.get_fpi_ratings(year='2023', team=team_name)
-    try:
-        fpi = api_response[0].fpi
-        return fpi
-    except:
-        print(f'Cannot find FPI for {team_name}')
-
 def get_fpi_ratings_map():
     api_instance = cfbd.RatingsApi(cfbd.ApiClient(configuration))
     api_response = api_instance.get_fpi_ratings(year='2024')
@@ -125,18 +62,15 @@ def filter_games_by_conferences(games, conference):
             result[game.away_team] = game
     return result
 
-def get_team_record(team_name):
+def get_records_dict():
     api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    record = api_instance.get_team_records(year=2024, team=team_name)
-    if (record is None) or (len(record) == 0):
-        record = api_instance.get_team_records(year=2023, team=team_name)
-    try:
-        total_record = record[0].total
-        record_str = f'{total_record.wins}-{total_record.losses}'
-    except:
-        record_str = ''
-    return record_str
-
+    records = api_instance.get_team_records(year=2024)
+    if (records is None) or (len(records) == 0):
+        records = api_instance.get_team_records(year=2023)
+    record_dict = {}
+    for record in records:
+        record_dict[record.team] = f'{record.total.wins}-{record.total.losses}'
+    return record_dict
 
 def get_bottom_n_teams(fpi_dict, bottom_n):
     sorted_dict = dict(sorted(fpi_dict.items(), key=lambda item: item[1]))
@@ -173,6 +107,8 @@ def get_bottom_games(teams, games):
     return {team: games[team] for team in teams if team in games}
 
 def main(target_date, send_text, fantasy_teams):
+    start_time = time.time() 
+
     week = extract_week(target_date)
 
     # Parse date from enum string
@@ -195,52 +131,27 @@ def main(target_date, send_text, fantasy_teams):
     bottom_teams = list(fpi_ratings_map.keys())[0:len(fantasy_teams)]
     bottom_games = get_bottom_games(bottom_teams, next_week_relevant_games_map)
 
-    # TODO - Build the record map for the bottom teams
+    # Build the record map for the bottom teams
+    records_dict = get_records_dict()
 
-    # TODO - Convert the game details into a list of stinker info objects
-
-    # TODO - Shuffle the fantasy teams, games and match them
-
-    # TODO - Build the response object
-
-
-
-    # REMOVE THE ITEMS BELOW
-    return;
-
-    # Retrieve valid teams within our acceptable conferences
-    all_teams = get_conference_teams()
-
-    # Building map of {team -> FPI Ranking} for those teams that have a game in the upcoming week
-    keep_teams_fpi = {}
-    for team in tqdm(all_teams):
-        sleep(0.5)
-        try:
-            if team_has_game_this_week(team, target_date):
-                keep_teams_fpi[team] = get_team_fpi_rating(team)
-        except:
-            print("Couldn't get schedule for: {}".format(team))
-
-    # Extract the worst N teams from our map
-    bottom_teams = get_bottom_n_teams(keep_teams_fpi, len(fantasy_teams))
-
-    # Shuffle each list
+    # Shuffle the fantasy teams, games and match them
     random.shuffle(fantasy_teams)
     random.shuffle(bottom_teams)
 
-    # Create a tuple for each fantasy team and the team they will be assigned
     pairs = {}
     for team, fantasy_team in zip(bottom_teams, fantasy_teams):
         pairs[fantasy_team] = team
 
+    # Convert the game details into a list of stinker info objects
     stinker_info_list = []
     for fantasy_team, team in pairs.items():
-        next_game = get_next_game(team, target_date)
-        team_record = get_team_record(team)
+        next_game = bottom_games[team]
+        team_record = records_dict[team]
 
         stinker_info = build_stinker_info(fantasy_team, team, next_game, team_record)
         stinker_info_list.append(stinker_info)
 
+    # Build the response object
     full_text_body = "\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
     print('Full text body: ', full_text_body)
 
@@ -250,6 +161,9 @@ def main(target_date, send_text, fantasy_teams):
 
     text_info = create_text_info(sent=send_text, to=TWILIO_NUMBER, body=full_text_body)
     stinker_week = create_stinker_week(date=target_date, stinkers=stinker_info_list, text_info=text_info)
+
+    elapsed_time = time.time() - start_time  # Calculate elapsed time
+    print(f"Execution time: {elapsed_time} seconds")
 
     return stinker_week
 

@@ -73,15 +73,23 @@ async def find_stinkers(fantasy_teams: Teams,
         await send_message(stinkers.message_info.body)
     return stinkers
 
-async def app(scope, receive, send):
+async def start_fastapi():
+    import uvicorn
     logger.info('Starting the fastapi server')
     print('Starting the fastapi server')
-    await app(scope, receive, send)
+    port = int(os.environ.get("PORT", 8000))
+    config = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
 
 async def start_discord_bot():
     logger.info('Starting Discord bot')
     print('Starting Discord bot')
     await client.start(DISCORD_BOT_TOKEN)
 
-# if __name__ == "__main__":
-#     asyncio.run(main())
+async def main():
+    fastapi_task = asyncio.create_task(start_fastapi())
+    discord_bot_task = asyncio.create_task(start_discord_bot())
+    await asyncio.gather(fastapi_task, discord_bot_task)
+
+asyncio.run(main())

@@ -60,6 +60,8 @@ async def on_message(message):
 
 @app.get("/")
 async def read_root():
+    logger.info('Read root')
+    print('READING ROOT')
     return {"message": "Hello, FastAPI!"}
 
 @app.post("/stinkers", response_model=StinkerWeek)

@@ -16,14 +16,13 @@ class StinkerInfo(BaseModel):
     game_info: GameInfo
     text_line: str
 
-class TextInfo(BaseModel):
-    sent: bool
-    to: str
+class MessageInfo(BaseModel):
+    send_requested: bool
     body: str
 
 class StinkerWeek(BaseModel):
     date: str
     stinkers: List[StinkerInfo]
-    text_info: TextInfo
+    message_info: MessageInfo
 
 

@@ -3,6 +3,7 @@ import os
 import random
 import cfbd
 import time
+# from discordBot import send_message
 from time import sleep
 from datetime import datetime
 from tqdm import tqdm
@@ -106,7 +107,7 @@ def extract_week(week_str):
 def get_bottom_games(teams, games):
     return {team: games[team] for team in teams if team in games}
 
-def main(target_date, send_text, fantasy_teams):
+async def main(target_date, send_text, fantasy_teams):
     start_time = time.time() 
 
     week = extract_week(target_date)
@@ -155,9 +156,13 @@ def main(target_date, send_text, fantasy_teams):
     full_text_body = "\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
     print('Full text body: ', full_text_body)
 
+    # TODO - Replace Text with Discord
+    # https://discordpy.readthedocs.io/en/latest/quickstart.html
+
     if send_text:
-        print('Sending text!')
-        twilio_texter.send_text(to_number=TWILIO_NUMBER, body=full_text_body)
+        print('Sending message!')
+        # await send_message(full_text_body)
+        # twilio_texter.send_text(to_number=TWILIO_NUMBER, body=full_text_body)
 
     text_info = create_text_info(sent=send_text, to=TWILIO_NUMBER, body=full_text_body)
     stinker_week = create_stinker_week(date=target_date, stinkers=stinker_info_list, text_info=text_info)

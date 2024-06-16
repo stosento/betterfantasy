@@ -21,6 +21,8 @@ load_dotenv()
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 DISCORD_CHANNEL_ID = int(os.getenv('DISCORD_CHANNEL_ID'))
 
+print(DISCORD_CHANNEL_ID)
+
 # Configure the logging module
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -44,6 +46,7 @@ async def send_message(message):
 
 @client.event
 async def on_ready():
+    print("GETTING BOT READY")
     channel = client.get_channel(DISCORD_CHANNEL_ID)
     logger.info('Discord bot getting channel: ' + str(channel))
     # await channel.send('Wassup bitches?')

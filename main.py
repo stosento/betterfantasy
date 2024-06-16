@@ -45,6 +45,7 @@ async def send_message(message):
 @client.event
 async def on_ready():
     channel = client.get_channel(DISCORD_CHANNEL_ID)
+    logger.info('Discord bot getting channel: ' + str(channel))
     # await channel.send('Wassup bitches?')
 
 @client.event

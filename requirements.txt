@@ -1,7 +1,8 @@
 fastapi
+discord
+pydantic
 uvicorn
 pandas
 tqdm
 cfbd
-twilio
 lxml

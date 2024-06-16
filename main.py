@@ -27,7 +27,7 @@ print(DISCORD_CHANNEL_ID)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Get the asyncio logger
-logger = logging.getLogger('asyncio')
+logger = logging.getLogger(__name__)
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -87,6 +87,7 @@ async def start_discord_bot():
 
 async def main():
     print('Starting main')
+    logger.info('Starting main')
     fastapi_task = asyncio.create_task(start_fastapi())
     discord_bot_task = asyncio.create_task(start_discord_bot())
     await asyncio.gather(fastapi_task, discord_bot_task)

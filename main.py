@@ -17,13 +17,13 @@ logger = setup_logging()
 class Teams(BaseModel):
     teams: List[str] = FANTASY_TEAMS
 
-app = FastAPI()
+app = FastAPI(title="BetterFantasy API")
 
-@app.get("/")
+@app.get("/", tags=["Root"])
 async def read_root():
     return {"message": "Hello, FastAPI!"}
 
-@app.post("/stinkers", response_model=StinkerWeek)
+@app.post("/stinkers", tags=["Stinkers"], response_model=StinkerWeek)
 async def find_stinkers(fantasy_teams: Teams, 
                         week: str = Query(WEEKS[0], enum=WEEKS), 
                         send_message: bool = False):

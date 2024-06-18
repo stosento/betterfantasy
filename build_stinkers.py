@@ -1,15 +1,8 @@
-import pandas as pd
 import os
 import random
-import cfbd
-import time
-# from discordBot import send_message
-from time import sleep
-from datetime import datetime
-from tqdm import tqdm
-from dotenv import load_dotenv
 
-from constants import ESPN_FPI_URL, CFB_REFERENCE_NAME_EXCEPTIONS, ACCEPTABLE_CONFERENCES
+from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict
+from constants import ACCEPTABLE_CONFERENCES
 from populators.stinkers import (
     create_game_info,
     create_stinker,
@@ -18,39 +11,10 @@ from populators.stinkers import (
     create_stinker_week
 )
 
-load_dotenv()
-
-CFBD_API_KEY = os.getenv('CFBD_API_KEY')
 CURRENT_YEAR = os.getenv('CURRENT_YEAR')
-PAST_YEAR = os.getenv('PAST_YEAR')
-
-# Configure API key authorization: ApiKeyAuth
-configuration = cfbd.Configuration()
-configuration.api_key['Authorization'] = CFBD_API_KEY
-configuration.api_key_prefix['Authorization'] = 'Bearer'
-
-# Read in FPI data
-fpi_rnk_df = pd.read_html(ESPN_FPI_URL)[0]
 
 def get_date(date_str):
     return pd.to_datetime(date_str).date()
-
-def get_fpi_ratings_map():
-    api_instance = cfbd.RatingsApi(cfbd.ApiClient(configuration))
-    api_response = api_instance.get_fpi_ratings(year=CURRENT_YEAR)
-    if (api_response is None) or (len(api_response) == 0):
-        api_response = api_instance.get_fpi_ratings(year=PAST_YEAR)
-    fpi_dict = {}
-    for team in api_response:
-        # Only add to dict if part of our conferences
-        if team.conference in ACCEPTABLE_CONFERENCES:
-            fpi_dict[team.team] = team.fpi
-    return fpi_dict
-
-def get_next_week_games(week):
-    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    games = api_instance.get_games(year=int(CURRENT_YEAR), week=week, season_type='regular')
-    return games
 
 def filter_games_by_conferences(games, conference):
     result = {}
@@ -60,16 +24,6 @@ def filter_games_by_conferences(games, conference):
         if game.away_conference in conference:
             result[game.away_team] = game
     return result
-
-def get_records_dict():
-    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    records = api_instance.get_team_records(year=int(CURRENT_YEAR))
-    if (records is None) or (len(records) == 0):
-        records = api_instance.get_team_records(year=int(PAST_YEAR))
-    record_dict = {}
-    for record in records:
-        record_dict[record.team] = f'{record.total.wins}-{record.total.losses}'
-    return record_dict
 
 def get_bottom_n_teams(fpi_dict, bottom_n):
     sorted_dict = dict(sorted(fpi_dict.items(), key=lambda item: item[1]))
@@ -105,7 +59,7 @@ def extract_week(week_str):
 def get_bottom_games(teams, games):
     return {team: games[team] for team in teams if team in games}
 
-async def main(target_date, send_requested, fantasy_teams):
+async def find_stinkers(target_date, send_message, fantasy_teams):
     week = extract_week(target_date)
 
     # Parse date from enum string
@@ -116,13 +70,7 @@ async def main(target_date, send_requested, fantasy_teams):
     next_week_relevant_games_map = filter_games_by_conferences(next_week_games, ACCEPTABLE_CONFERENCES)
 
     # Get FPI Ratings Map
-    fpi_ratings_map = get_fpi_ratings_map()
-
-    # Limit our map to those that are in the next week relevant games
-    fpi_ratings_map = {k: v for k, v in fpi_ratings_map.items() if k in next_week_relevant_games_map.keys()}
-
-    # Sort the map by FPI rating, lowest to highest
-    fpi_ratings_map = dict(sorted(fpi_ratings_map.items(), key=lambda item: item[1]))
+    fpi_ratings_map = get_fpi_ratings_map(next_week_relevant_games_map)
 
     # Extract the worst N teams from our map & get the game details for each
     bottom_teams = list(fpi_ratings_map.keys())[0:len(fantasy_teams)]
@@ -150,10 +98,7 @@ async def main(target_date, send_requested, fantasy_teams):
 
     # Build the response object
     full_text_body = "\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
-    message_info = create_message_info(send_requested=send_requested, body=full_text_body)
+    message_info = create_message_info(send_message=send_message, body=full_text_body)
     stinker_week = create_stinker_week(date=target_date, stinkers=stinker_info_list, message_info=message_info)
 
     return stinker_week
-
-if __name__ == '__main__':
-    main()

@@ -17,7 +17,7 @@ class StinkerInfo(BaseModel):
     text_line: str
 
 class MessageInfo(BaseModel):
-    send_requested: bool
+    send_message: bool
     body: str
 
 class StinkerWeek(BaseModel):

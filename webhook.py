@@ -12,4 +12,4 @@ async def send_message_to_webhook(webhook_url, message):
         if response.status_code == 204:
             logger.info("Message sent to webhook successfully")
         else:
-            logger.error(f"Failed to send message to webhook. Status code: {response.status_code}")
+            logger.error(f"Failed to send message to webhook. Status code - {response.status_code}")

@@ -10,23 +10,5 @@
             "src": "/(.*)",
             "dest": "main.py"
         }
-    ],
-    "crons": [
-        {
-          "path": "/stinkers",
-          "schedule": "5 22 * * *",
-          "body": {
-            "teams": [
-                "Matt",
-                "Stephen",
-                "Kyle",
-                "Tyler",
-                "Andrew",
-                "Evan"
-            ],
-            "week": "Week 1 - 8/29-9/2",
-            "send_message": true
-          }
-        }
-      ]
+    ]
 }

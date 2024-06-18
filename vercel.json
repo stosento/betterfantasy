@@ -14,7 +14,7 @@
     "crons": [
         {
           "path": "/stinkers",
-          "schedule": "* * * * *",
+          "schedule": "5 22 * * *",
           "body": {
             "teams": [
                 "Matt",

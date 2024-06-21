@@ -1,22 +1,3 @@
-## Bad team finder
-
-ESPN_FPI_URL = 'https://www.espn.com/college-football/fpi'
-CFB_REFERENCE_NAME_EXCEPTIONS = {
-    'NC State': 'North Carolina State',
-    'Miami (FL)': 'Miami FL',
-    'UCF': 'Central Florida',
-    'USC': 'Southern California',
-    'Texas A&M': 'Texas AM',
-    'TCU': 'Texas Christian',
-    'LSU': 'Louisiana State',
-    'Ole Miss': 'Mississippi',
-    'Pitt': 'Pittsburgh',
-    'Bowling Green State': 'Bowling Green',
-    'Nevada-Las Vegas': 'UNLV',
-    'Louisiana-Monroe': 'UL Monroe',
-    'Middle Tennessee State': 'Middle Tennessee',
-    'SMU': 'Southern Methodist'
-}
 WEEKS = [
     'Week 1 - 8/29-9/2',
     'Week 2 - 9/6-9/7',

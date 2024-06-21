@@ -1,5 +1,7 @@
 import os
 import random
+import pytz
+from datetime import datetime
 
 from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict
 from constants import ACCEPTABLE_CONFERENCES
@@ -29,21 +31,41 @@ def get_bottom_n_teams(fpi_dict, bottom_n):
     sorted_dict = dict(sorted(fpi_dict.items(), key=lambda item: item[1]))
     return list(sorted_dict.keys())[0:bottom_n]
 
-def build_message(fantasy_team, team, game, team_record):
+def build_message(fantasy_team, team, game, team_record, kickoff):
     team_info = f'{team} ({team_record})'
 
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team
     body = f'{team_info}, {"home vs" if is_home else "playing @"} {opponent_info}'
-    message = f'{fantasy_team} has {body}'
+    message = f'{fantasy_team} has {body} -- {kickoff}'
 
     return message
 
+def build_game_start(start_date, start_time_tbd): #TODO
+    # Parse the ISO format date string
+    dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+    
+    # Convert to EST
+    est = pytz.timezone('US/Eastern')
+    dt_est = dt.astimezone(est)
+    
+    # Format the date and time
+    day = dt_est.strftime('%A')
+    date = dt_est.strftime('%m/%d/%Y')
+    
+    if not start_time_tbd:
+        time = dt_est.strftime('%I:%M%p')
+        return f"{day} @ {time} EST ({date})"
+    else:
+        return f"{day} @ TBD EST ({date})"
+
 def build_stinker_info(fantasy_team, team, game, team_record):
-    message = build_message(fantasy_team, team, game, team_record)
+
+    kickoff = build_game_start(game.start_date, game.start_time_tbd)
+    message = build_message(fantasy_team, team, game, team_record, kickoff)
 
     stinker = create_stinker(team=team, record=team_record)
-    game_info = create_game_info(home_team=game.home_team, away_team=game.away_team, kickoff=game.start_date)
+    game_info = create_game_info(home_team=game.home_team, away_team=game.away_team, kickoff=kickoff)
     stinker_info = create_stinker_info(fantasy_team=fantasy_team, stinker=stinker, game_info=game_info, text_line=message)
     
     return stinker_info

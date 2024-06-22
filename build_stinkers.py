@@ -64,8 +64,11 @@ def build_stinker_info(fantasy_team, team, game, team_record):
     kickoff = build_game_start(game.start_date, game.start_time_tbd)
     message = build_message(fantasy_team, team, game, team_record, kickoff)
 
+    home_score = game.home_points if game.completed else 0
+    away_score = game.away_points if game.completed else 0
+
     stinker = create_stinker(team=team, record=team_record)
-    game_info = create_game_info(home_team=game.home_team, away_team=game.away_team, kickoff=kickoff)
+    game_info = create_game_info(game_id=game.id, home_team=game.home_team, home_score=home_score, away_team=game.away_team, away_score=away_score, kickoff=kickoff)
     stinker_info = create_stinker_info(fantasy_team=fantasy_team, stinker=stinker, game_info=game_info, text_line=message)
     
     return stinker_info
@@ -83,6 +86,8 @@ def get_bottom_games(teams, games):
 
 async def find_stinkers(target_date, send_message, fantasy_teams):
     week = extract_week(target_date)
+
+    # TODO - Check to see if exists from DB
 
     # Parse date from enum string
     target_date = format_date(target_date)
@@ -124,3 +129,26 @@ async def find_stinkers(target_date, send_message, fantasy_teams):
     stinker_week = create_stinker_week(date=target_date, stinkers=stinker_info_list, message_info=message_info)
 
     return stinker_week
+
+def retrieve_stinkers_games(week):
+    # Make request to SQL Server to get the stinkers games
+    
+    return None
+
+def get_stinkers_results(week):
+
+    # Retrieve stinkers games
+    stinkers_games = retrieve_stinkers_games(week)
+
+    # For each stinker game
+
+        # Check if result included in result, if so, grab it
+
+        # If result not in DB record, make request to CFBD API, grab result
+
+            # Build update request to SQL Server
+
+    # Make requests to SQL Server if update list is not empty
+
+    # Return the results
+    return None

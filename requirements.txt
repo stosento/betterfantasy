@@ -1,6 +1,9 @@
 fastapi
 discord
 pydantic
+sqlalchemy
+databases[sqlite]
+aiosqlite
 uvicorn
 pandas
 tqdm

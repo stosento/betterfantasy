@@ -1,8 +1,8 @@
 from typing import List
 from models.stinkers import GameInfo, Stinker, StinkerInfo, MessageInfo, StinkerWeek
 
-def create_game_info(home_team: str, away_team: str, kickoff: str) -> GameInfo:
-    return GameInfo(home_team=home_team, away_team=away_team, kickoff=kickoff)
+def create_game_info(game_id: int, home_team: str, home_score: int, away_team: str, away_score: int, kickoff: str) -> GameInfo:
+    return GameInfo(game_id=game_id, home_team=home_team, home_score=home_score, away_team=away_team, away_score=away_score, kickoff=kickoff)
 
 def create_stinker(team: str, record: str) -> Stinker:
     return Stinker(team=team, record=record)

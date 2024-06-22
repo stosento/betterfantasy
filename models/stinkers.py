@@ -2,8 +2,11 @@ from typing import List
 from pydantic import BaseModel
 
 class GameInfo(BaseModel):
+    game_id: int
     home_team: str
+    home_score: int
     away_team: str
+    away_score: int
     kickoff: str
 
 class Stinker(BaseModel):

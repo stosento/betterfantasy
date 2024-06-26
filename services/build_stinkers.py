@@ -68,7 +68,7 @@ def build_stinker_info(fantasy_team, team, game, team_record):
     away_score = game.away_points if game.completed else 0
 
     stinker = create_stinker(team=team, record=team_record)
-    game_info = create_game_info(game_id=game.id, home_team=game.home_team, home_score=home_score, away_team=game.away_team, away_score=away_score, kickoff=kickoff)
+    game_info = create_game_info(game_id=game.id, game_complete=game.completed, home_team=game.home_team, home_score=home_score, away_team=game.away_team, away_score=away_score, kickoff=kickoff)
     stinker_info = create_stinker_info(fantasy_team=fantasy_team, stinker=stinker, game_info=game_info, text_line=message)
     
     return stinker_info
@@ -126,7 +126,7 @@ async def find_stinkers(target_date, send_message, fantasy_teams):
     # Build the response object
     full_text_body = "\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
     message_info = create_message_info(send_message=send_message, body=full_text_body)
-    stinker_week = create_stinker_week(date=target_date, stinkers=stinker_info_list, message_info=message_info)
+    stinker_week = create_stinker_week(week=week, date=target_date, stinkers=stinker_info_list, message_info=message_info)
 
     return stinker_week
 

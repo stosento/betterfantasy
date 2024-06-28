@@ -10,5 +10,11 @@
             "src": "/(.*)",
             "dest": "main.py"
         }
-    ]
+    ],
+    "env": {
+        "ENVIRONMENT": "dev",
+        "DEV_POSTGRES_URL": "@dev_postgres_url",
+        "PROD_POSTGRES_URL": "@prod_postgres_url",
+        "DISCORD_WEBHOOK_URL": "@discord_webhook_url"
+    }
 }

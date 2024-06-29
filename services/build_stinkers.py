@@ -87,8 +87,6 @@ def get_bottom_games(teams, games):
 async def find_stinkers(target_date, send_message, fantasy_teams):
     week = extract_week(target_date)
 
-    # TODO - Check to see if exists from DB
-
     # Parse date from enum string
     target_date = format_date(target_date)
 

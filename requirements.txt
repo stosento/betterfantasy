@@ -3,6 +3,7 @@ discord
 pydantic
 sqlalchemy
 databases[sqlite]
+pydantic-settings
 aiosqlite
 uvicorn
 pandas

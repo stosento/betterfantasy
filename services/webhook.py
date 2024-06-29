@@ -1,5 +1,5 @@
 import httpx
-from logger import setup_logging
+from utils.logger import setup_logging
 
 logger = setup_logging()
 

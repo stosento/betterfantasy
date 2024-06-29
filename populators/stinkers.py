@@ -43,3 +43,5 @@ def create_stinker_week(week: int,
                        date=date, 
                        stinkers=stinkers, 
                        message_info=message_info)
+
+# def build_stinker_week()

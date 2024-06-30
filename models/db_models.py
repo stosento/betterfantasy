@@ -1,8 +1,14 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+import enum
 
 Base = declarative_base()
+
+class GameStatus(enum.Enum):
+    NOT_STARTED = "NOT_STARTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETE = "COMPLETE"
 
 class Week(Base):
     __tablename__ = 'weeks'
@@ -21,7 +27,7 @@ class Stinker(Base):
     stinker_team = Column(String, nullable=False)
     stinker_record = Column(String, nullable=False)
     game_id = Column(Integer, nullable=False)
-    game_complete = Column(Boolean, nullable=False)
+    game_status = Column(Enum(GameStatus), nullable=False)
     home_team = Column(String, nullable=False)
     home_score = Column(Integer, nullable=False)
     away_team = Column(String, nullable=False)

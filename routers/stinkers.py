@@ -16,7 +16,7 @@ router = APIRouter(
     dependencies=[Security(get_api_key)]
 )
 
-@router.post("/", response_model=StinkerWeek)
+@router.post("/", response_model=StinkerWeek, summary="Assign Stinkers for the week")
 async def create_stinkers(
     request: StinkersRequest,
     week: Week,
@@ -29,8 +29,8 @@ async def create_stinkers(
 
     This endpoint allows you to:
     - Assign stinkers to fantasy teams for a specific week
-    - Optionally overwrite existing stinkers
-    - Optionally send a message with the results
+    - Optionally overwrite existing stinker assignments
+    - Optionally send a message with the stinker assignments
 
     The response includes the assigned stinkers and message information.
     """

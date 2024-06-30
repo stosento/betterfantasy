@@ -9,7 +9,7 @@ def create_db_stinker(week_number: int, stinker: StinkerInfo):
         stinker_team=stinker.stinker.team,
         stinker_record=stinker.stinker.record,
         game_id=stinker.game_info.game_id,
-        game_complete=stinker.game_info.game_complete,
+        game_status=stinker.game_info.game_status,
         home_team=stinker.game_info.home_team,
         home_score=stinker.game_info.home_score,
         away_team=stinker.game_info.away_team,
@@ -28,7 +28,7 @@ def create_stinker_week_from_db(db_week: DBWeek, db_stinkers: array):
                 stinker=Stinker(team=stinker.stinker_team, record=stinker.stinker_record),
                 game_info=GameInfo(
                     game_id=stinker.game_id,
-                    game_complete=stinker.game_complete,
+                    game_status=stinker.game_status,
                     home_team=stinker.home_team,
                     home_score=stinker.home_score,
                     away_team=stinker.away_team,

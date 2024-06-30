@@ -38,9 +38,14 @@ class StinkersResultsRequest(BaseModel):
 
 # ------------------- STINKER OBJECTS -------------------
 
+class GameStatus(str, Enum):
+    NOT_STARTED = "NOT_STARTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETE = "COMPLETE"
+
 class GameInfo(BaseModel):
     game_id: int
-    game_complete: bool = False
+    game_status: GameStatus = GameStatus.NOT_STARTED
     home_team: str
     home_score: int
     away_team: str

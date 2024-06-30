@@ -1,5 +1,5 @@
 from typing import List
-from models.stinkers import GameInfo, Stinker, StinkerInfo, MessageInfo, StinkerWeek
+from models.stinkers import GameInfo, Stinker, StinkerInfo, MessageInfo, StinkerWeek, GameStatus
 
 def create_game_info(game_id: int, 
                      game_complete: bool,
@@ -9,7 +9,7 @@ def create_game_info(game_id: int,
                      away_score: int, 
                      kickoff: str) -> GameInfo:
     return GameInfo(game_id=game_id, 
-                    game_complete=game_complete,
+                    game_complete=GameStatus.COMPLETE if game_complete else GameStatus.NOT_STARTED,
                     home_team=home_team, 
                     home_score=home_score, 
                     away_team=away_team, 

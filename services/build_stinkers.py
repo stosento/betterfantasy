@@ -135,18 +135,38 @@ def retrieve_stinkers_games(week):
 
 def get_stinkers_results(week):
 
-    # Retrieve stinkers games
+    # Retrieve stinkers games from the database
     stinkers_games = retrieve_stinkers_games(week)
 
-    # For each stinker game
+    # For each stinker game in our list
 
-        # Check if result included in result, if so, grab it
+        # Grab the "status" of the game
 
-        # If result not in DB record, make request to CFBD API, grab result
+        # If the status == "not started"
 
-            # Build update request to SQL Server
+            # Compare current time vs. game start time
 
-    # Make requests to SQL Server if update list is not empty
+            # If the game has started
+
+                # Grab the latest info for the game from the CFBD API
+
+                # Populate our response with the resulting object
+
+                # Update the game in the database with status "in progress"
+
+            # else do nothing
+
+        # If the game has status "in progress"
+
+            # Grab the latest info for the game from the CFBD API
+
+            # Populate the response with the resulting object
+
+            # Update the game in the database with the latest info
+        
+        # If the game has status "complete"
+
+            # Populate the response with the DB object
 
     # Return the results
     return None

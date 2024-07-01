@@ -4,11 +4,19 @@ from sqlalchemy.orm import Session
 from config import settings
 from database import get_db
 from models.stinkers import Week, StinkersRequest, StinkersResultsRequest, StinkerWeek, StinkerInfo, Stinker, GameInfo, MessageInfo
-from models.db_models import Week as DBWeek, Stinker as DBStinker
+from models.db_models import Week as DBWeek, Stinker as DBStinker, GameStatus as DBGameStatus
 from services.security import get_api_key
 from services.webhook import send_message_to_webhook
-from services.build_stinkers import find_stinkers
+from services.build_stinkers import find_stinkers, build_db_stinker
+from services.database_utils import update_db_stinker
 from populators.db_stinkers import create_db_stinker, create_stinker_week_from_db
+from utils.time import is_past_kickoff
+from utils.messages import build_stinker_results_message
+from cfbd_api import get_game_by_id
+
+from fastapi import Security, HTTPException
+from starlette.status import HTTP_404_NOT_FOUND
+
 
 router = APIRouter(
     prefix="/stinkers",
@@ -79,50 +87,39 @@ async def get_stinkers_results(
     The response includes the stinker results and, if requested, sends a message to the webhook.
     """
     week_number = int(request.week.name.split('_')[1])
-    existing_week = db.query(DBWeek).filter(DBWeek.week_number == week_number).first()
+    db_existing_week = db.query(DBWeek).filter(DBWeek.week_number == week_number).first()
+    stinker_week = None
     
-    if existing_week:
-        # Retrieve results from the database
-        stinkers = db.query(DBStinker).filter(DBStinker.week_number == week_number).all()
-        stinker_week = StinkerWeek(
-            week=existing_week.week_number,
-            date=existing_week.date,
-            stinkers=[
-                StinkerInfo(
-                    fantasy_team=stinker.fantasy_team,
-                    stinker=Stinker(team=stinker.stinker_team, record=stinker.stinker_record),
-                    game_info=GameInfo(
-                        game_id=stinker.game_id,
-                        game_complete=stinker.game_complete,
-                        home_team=stinker.home_team,
-                        home_score=stinker.home_score,
-                        away_team=stinker.away_team,
-                        away_score=stinker.away_score,
-                        kickoff=stinker.kickoff
-                    ),
-                    text_line=stinker.text_line
-                ) for stinker in stinkers
-            ],
-            message_info=None  # We'll set this later if send_message is True
-        )
+    if db_existing_week:
+        db_stinkers = db.query(DBStinker).filter(DBStinker.week_number == week_number).all()
+
+        for db_stinker in db_stinkers:
+
+            game = get_game_by_id(db_stinker.game_id)
+            status = db_stinker.game_status
+
+            if status == DBGameStatus.NOT_STARTED:
+                if is_past_kickoff(db_stinker.kickoff):
+                    db_stinker = build_db_stinker(game, db_stinker, DBGameStatus.IN_PROGRESS)
+                    update_db_stinker(db_stinker, db)
+                
+            elif status == DBGameStatus.IN_PROGRESS:
+                status = DBGameStatus.COMPLETE if game.completed else DBGameStatus.IN_PROGRESS
+                db_stinker = build_db_stinker(db_stinker, status)
+                update_db_stinker(db_stinker, db)
+
+        stinker_week = create_stinker_week_from_db(db_existing_week, db_stinkers)
+
     else:
-        # Generate new results using the existing function
-        stinker_week = await get_stinkers_results(request.week)
-        
-        # Save the new results to the database
-        new_week = DBWeek(week_number=stinker_week.week, date=stinker_week.date)
-        db.add(new_week)
-        
-        for stinker in stinker_week.stinkers:
-            db_stinker = create_db_stinker(stinker_week.week, stinker)
-            db.add(db_stinker)
-        
-        db.commit()
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND, detail="Could not find the stinkers for the specified week."
+        )
+    
+    message_body = build_stinker_results_message(stinker_week)
+    stinker_week.message_info = MessageInfo(send_message=request.send_message, body=message_body)
 
     # Handle sending message if requested
     if request.send_message:
-        message_body = "\n".join([stinker.text_line for stinker in stinker_week.stinkers])
         await send_message_to_webhook(settings.DISCORD_WEBHOOK_URL, message_body)
-        stinker_week.message_info = MessageInfo(send_message=True, body=message_body)
 
     return stinker_week

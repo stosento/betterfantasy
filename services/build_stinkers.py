@@ -3,7 +3,9 @@ import random
 import pytz
 from datetime import datetime
 
-from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict
+from models.db_models import Stinker as DBStinker, GameStatus as DBGameStatus
+
+from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict, get_game_by_id
 from constants import ACCEPTABLE_CONFERENCES
 from populators.stinkers import (
     create_game_info,
@@ -128,45 +130,12 @@ async def find_stinkers(target_date, send_message, fantasy_teams):
 
     return stinker_week
 
-def retrieve_stinkers_games(week):
-    # Make request to SQL Server to get the stinkers games
-    
-    return None
+def build_db_stinker(game, db_stinker: DBStinker, status: DBGameStatus):
+    home_score = game.home_points if game.home_points else 0
+    away_score = game.away_points if game.away_points else 0
 
-def get_stinkers_results(week):
+    db_stinker.home_score = home_score
+    db_stinker.away_score = away_score
+    db_stinker.game_status = status
 
-    # Retrieve stinkers games from the database
-    stinkers_games = retrieve_stinkers_games(week)
-
-    # For each stinker game in our list
-
-        # Grab the "status" of the game
-
-        # If the status == "not started"
-
-            # Compare current time vs. game start time
-
-            # If the game has started
-
-                # Grab the latest info for the game from the CFBD API
-
-                # Populate our response with the resulting object
-
-                # Update the game in the database with status "in progress"
-
-            # else do nothing
-
-        # If the game has status "in progress"
-
-            # Grab the latest info for the game from the CFBD API
-
-            # Populate the response with the resulting object
-
-            # Update the game in the database with the latest info
-        
-        # If the game has status "complete"
-
-            # Populate the response with the DB object
-
-    # Return the results
-    return None
+    return db_stinker

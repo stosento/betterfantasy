@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text, inspect
 from models.db_models import Base  # Assuming this is where your Base is defined
+from models.db_models import Stinker as DBStinker
 
 def clear_all_tables(db: Session):
     try:
@@ -42,5 +43,13 @@ def clear_all_tables(db: Session):
 
     print("All tables have been cleared.")
 
-# Usage (assuming you have a db session):
-# clear_all_tables(db)
+def update_db_stinker(updated_game, db: Session):
+    try:
+        db.query(DBStinker).filter(DBStinker.id == updated_game.id).update(updated_game)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"An error occurred while updating the game: {e}")
+        raise
+
+    print(f"Game with ID {updated_game.id} has been updated.")

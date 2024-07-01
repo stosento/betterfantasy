@@ -48,3 +48,8 @@ def get_records_dict():
     for record in records:
         record_dict[record.team] = f'{record.total.wins}-{record.total.losses}'
     return record_dict
+
+def get_game_by_id(game_id):
+    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    game = api_instance.get_games(year=int(CURRENT_YEAR), id=game_id)
+    return game[0]

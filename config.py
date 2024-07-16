@@ -7,7 +7,6 @@ class Settings(BaseSettings):
     DATABASE_URL: Optional[str] = None
     API_KEY: Optional[str] = None
     cfbd_api_key: str
-    twilio_number: str
     discord_bot_token: str
     discord_channel_id: str
     bf_api_keys: str

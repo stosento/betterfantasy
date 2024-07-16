@@ -17,7 +17,7 @@
     ],
     "env": {
         "ENVIRONMENT": "dev",
-        "DEV_POSTGRES_URL": "@dev_postgres_url",
+        "DEV_POSTGRES_URL": "@DEV_POSTGRES_URL",
         "PROD_POSTGRES_URL": "PROD_POSTGRES_URL",
         "DISCORD_WEBHOOK_URL": "DISCORD_WEBHOOK_URL"
     },

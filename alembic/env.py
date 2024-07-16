@@ -5,7 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from models.db_models import Base
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from models.db_models import Base  # Assuming this is where your Base is defined
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -27,8 +30,7 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-from database import DATABASE_URL
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.set_main_option("sqlalchemy.url", os.environ.get("POSTGRES_URL"))
 
 
 def run_migrations_offline() -> None:

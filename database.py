@@ -9,7 +9,7 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "local")
 # Set up environment-specific database URLs
 DATABASE_URLS = {
     "local": "postgresql://betterfantasy:betterfantasy@localhost:5432/better_fantasy",
-    "dev": os.environ.get("DEV_POSTGRES_URL"),
+    "dev": os.environ.get("POSTGRES_URL"), 
     "prod": os.environ.get("PROD_POSTGRES_URL")
 }
 

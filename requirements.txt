@@ -9,5 +9,5 @@ pandas
 tqdm
 cfbd
 lxml
-SQLAlchemy==1.4.45
+SQLAlchemy==1.4.49
 psycopg2-binary==2.9.5

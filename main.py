@@ -18,6 +18,11 @@ from models.db_models import Week as DBWeek, Stinker as DBStinker
 from populators.db_stinkers import create_db_stinker, create_stinker_week_from_db
 from sqlalchemy import text
 
+import sys
+print(sys.path)
+import psycopg2
+print(psycopg2.__file__)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Validate database connection

@@ -20,7 +20,12 @@ DATABASE_URL = DATABASE_URLS.get(ENVIRONMENT)
 if not DATABASE_URL:
     raise ValueError(f"Database URL not set for environment: {ENVIRONMENT}")
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, future=True, pool_pre_ping=True, connect_args={
+    "ssl": {
+        "ssl_mode": "verify-full",
+        "sslrootcert": "/path/to/root/ca/cert"
+    }
+})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

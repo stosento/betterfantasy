@@ -11,3 +11,4 @@ cfbd
 lxml
 SQLAlchemy==1.4.49
 psycopg2-binary==2.9.5
+pg8000==1.29.4

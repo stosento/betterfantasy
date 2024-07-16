@@ -1,7 +1,6 @@
 fastapi
 discord
 pydantic
-sqlalchemy
 databases[sqlite]
 pydantic-settings
 aiosqlite
@@ -10,7 +9,5 @@ pandas
 tqdm
 cfbd
 lxml
-# SQLAlchemy==1.4.45
-# psycopg2-binary==2.9.5
-psycopg2-binary
-SQLAlchemy
+SQLAlchemy==1.4.45
+psycopg2-binary==2.9.5

@@ -1,3 +1,4 @@
+vercel.json
 {
     "builds": [
         {
@@ -15,11 +16,5 @@
             "dest": "main.py"
         }
     ],
-    "env": {
-        "ENVIRONMENT": "dev",
-        "DEV_POSTGRES_URL": "DEV_POSTGRES_URL",
-        "PROD_POSTGRES_URL": "PROD_POSTGRES_URL",
-        "DISCORD_WEBHOOK_URL": "DISCORD_WEBHOOK_URL"
-    },
     "buildCommand": "python apply_migrations.py && pip install -r requirements.txt"
 }

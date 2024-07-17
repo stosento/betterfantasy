@@ -50,14 +50,3 @@ def get_db():
         db.close()
 
 print(f"Connected to database for environment: {ENVIRONMENT}")
-
-# Additional debug information
-import sys
-print(f"Python version: {sys.version}")
-print(f"SQLAlchemy version: {sqlalchemy.__version__}")
-try:
-    import psycopg2
-    print(f"psycopg2 version: {psycopg2.__version__}")
-    print(f"psycopg2 path: {psycopg2.__file__}")
-except ImportError:
-    print("psycopg2 is not installed")

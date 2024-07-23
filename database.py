@@ -4,6 +4,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects import postgresql
 
+from utils.logger import setup_logging
+logger = setup_logging()
+
 # Determine the environment
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "local")
 
@@ -25,6 +28,7 @@ if DATABASE_URL.startswith("postgres://"):
 
 # Debug print
 print(f"Using DATABASE_URL: {DATABASE_URL}")
+logger.info(f"Database URL: {DATABASE_URL}")
 
 engine = create_engine(
     DATABASE_URL,

@@ -17,6 +17,9 @@ from cfbd_api import get_game_by_id
 from fastapi import Security, HTTPException
 from starlette.status import HTTP_404_NOT_FOUND
 
+from utils.logger import setup_logging
+logger = setup_logging()
+
 
 router = APIRouter(
     prefix="/stinkers",
@@ -44,6 +47,8 @@ async def create_stinkers(
     """
     # Extract week number from the Week enum
     week_number = int(week.name.split('_')[1])
+    logger.info(f"Finding stinkers for week {week_number}")
+    logger.info(f"db: {db}")
     db_existing_week = db.query(DBWeek).filter(DBWeek.week_number == week_number).first()
 
     if db_existing_week and not overwrite:

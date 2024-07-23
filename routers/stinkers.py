@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 
 from config import settings
 from database import get_db
@@ -49,7 +50,13 @@ async def create_stinkers(
     week_number = int(week.name.split('_')[1])
     logger.info(f"Finding stinkers for week {week_number}")
     logger.info(f"db: {db}")
-    db_existing_week = db.query(DBWeek).filter(DBWeek.week_number == week_number).first()
+    try:
+        db_existing_week = db.query(DBWeek).filter(DBWeek.week_number == week_number).first()
+        logger.info(f"Query for existing week returned: {db_existing_week}")
+    except SQLAlchemyError as e:
+        logger.error(f"Error querying for existing week: {str(e)}")
+        logger.error(f"SQLAlchemy error details: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail="Database error when querying for existing week")
 
     if db_existing_week and not overwrite:
         db_stinkers = db.query(DBStinker).filter(DBStinker.week_number == week_number).all()

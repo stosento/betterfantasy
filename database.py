@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, __version__ as sqlalchemy_version
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects import postgresql
+import traceback
 
 from utils.logger import setup_logging
 logger = setup_logging()
@@ -32,14 +33,10 @@ logger.info(f"Database URL: {DATABASE_URL}")
 
 engine = create_engine(
     DATABASE_URL,
-    future=True,
     pool_pre_ping=True,
-    connect_args={
-        "ssl": {
-            "ssl_mode": "require",  # Changed from "verify-full" to "require"
-            # Removed "sslrootcert" as it's not typically needed for Vercel deployments
-        }
-    } if ENVIRONMENT != "local" else {}  # Only use SSL for non-local environments
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

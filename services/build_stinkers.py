@@ -118,7 +118,7 @@ async def find_stinkers(target_date, send_message, fantasy_teams):
     stinker_info_list = []
     for fantasy_team, team in pairs.items():
         next_game = bottom_games[team]
-        team_record = records_dict[team]
+        team_record = records_dict.get(team, '0-0')
 
         stinker_info = build_stinker_info(fantasy_team, team, next_game, team_record)
         stinker_info_list.append(stinker_info)

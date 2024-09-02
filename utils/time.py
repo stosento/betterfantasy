@@ -1,5 +1,6 @@
 import datetime
 from datetime import datetime
+from models.db_models import GameStatus as DBGameStatus
 import pytz
 
 def is_past_kickoff(kickoff):
@@ -25,3 +26,13 @@ def is_past_kickoff(kickoff):
         # Return False if there's any issue
         return False
 
+def build_game_status(game):
+
+    status = DBGameStatus.NOT_STARTED
+
+    if game.completed:
+        status = DBGameStatus.COMPLETE
+    elif is_past_kickoff(game.kickoff):
+        status = DBGameStatus.IN_PROGRESS
+    
+    return status

@@ -11,7 +11,7 @@ from services.webhook import send_message_to_webhook
 from services.build_stinkers import find_stinkers, build_db_stinker
 from services.database_utils import update_db_stinker
 from populators.db_stinkers import create_db_stinker, create_stinker_week_from_db
-from utils.time import is_past_kickoff
+from utils.time import is_past_kickoff, build_game_status
 from utils.messages import build_stinker_results_message
 from cfbd_api import get_game_by_id
 
@@ -108,18 +108,11 @@ async def get_stinkers_results(
         for db_stinker in db_stinkers:
 
             game = get_game_by_id(db_stinker.game_id)
-            status = db_stinker.game_status
+            current_status = db_stinker.game_status
 
-            if status == DBGameStatus.NOT_STARTED:
-                if is_past_kickoff(db_stinker.kickoff):
-                    db_stinker = build_db_stinker(game, db_stinker, DBGameStatus.IN_PROGRESS)
-                    print(f"db_stinker: {db_stinker}")
-                    update_db_stinker(db_stinker, db)
-                
-            elif status == DBGameStatus.IN_PROGRESS:
-                status = DBGameStatus.COMPLETE if game.completed else DBGameStatus.IN_PROGRESS
-                db_stinker = build_db_stinker(db_stinker, status)
-                print(f"db_stinker: {db_stinker}")
+            if current_status != DBGameStatus.COMPLETE:
+                game_status = build_game_status(game)
+                db_stinker = build_db_stinker(game, db_stinker, game_status)
                 update_db_stinker(db_stinker, db)
 
         stinker_week = create_stinker_week_from_db(db_existing_week, db_stinkers)

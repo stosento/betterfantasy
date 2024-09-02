@@ -43,13 +43,13 @@ def clear_all_tables(db: Session):
 
     print("All tables have been cleared.")
 
-def update_db_stinker(updated_game, db: Session):
-    try:
-        db.query(DBStinker).filter(DBStinker.id == updated_game.id).update(updated_game)
+def update_db_stinker(updated_game, db):
+    stinker = db.query(DBStinker).filter(DBStinker.id == updated_game.id).first()
+    if stinker:
+        # Update fields individually
+        for attr, value in updated_game.__dict__.items():
+            if attr != 'id' and hasattr(stinker, attr):
+                setattr(stinker, attr, value)
         db.commit()
-    except Exception as e:
-        db.rollback()
-        print(f"An error occurred while updating the game: {e}")
-        raise
-
-    print(f"Game with ID {updated_game.id} has been updated.")
+    else:
+        raise ValueError(f"No Stinker found with id {updated_game.id}")

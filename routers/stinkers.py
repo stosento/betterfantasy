@@ -113,11 +113,13 @@ async def get_stinkers_results(
             if status == DBGameStatus.NOT_STARTED:
                 if is_past_kickoff(db_stinker.kickoff):
                     db_stinker = build_db_stinker(game, db_stinker, DBGameStatus.IN_PROGRESS)
+                    print(f"db_stinker: {db_stinker}")
                     update_db_stinker(db_stinker, db)
                 
             elif status == DBGameStatus.IN_PROGRESS:
                 status = DBGameStatus.COMPLETE if game.completed else DBGameStatus.IN_PROGRESS
                 db_stinker = build_db_stinker(db_stinker, status)
+                print(f"db_stinker: {db_stinker}")
                 update_db_stinker(db_stinker, db)
 
         stinker_week = create_stinker_week_from_db(db_existing_week, db_stinkers)

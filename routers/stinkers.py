@@ -64,7 +64,7 @@ async def create_stinkers(
     else:
         if db_existing_week:
             db.query(DBStinker).filter(DBStinker.week_number == week_number).delete()
-            db_existing_week.date = week.value 
+            db_existing_week.date = week.value
             db.flush()
         else:
             db_existing_week = DBWeek(week_number=week_number, date=week.value)
@@ -81,7 +81,7 @@ async def create_stinkers(
 
     if send_message:
         await send_message_to_webhook(settings.DISCORD_WEBHOOK_URL, stinker_week.message_info.body)
-    
+
     return stinker_week
 
 @router.get("/")
@@ -101,7 +101,7 @@ async def get_stinkers_results(
     week_number = int(request.week.name.split('_')[1])
     db_existing_week = db.query(DBWeek).filter(DBWeek.week_number == week_number).first()
     stinker_week = None
-    
+
     if db_existing_week:
         db_stinkers = db.query(DBStinker).filter(DBStinker.week_number == week_number).all()
 
@@ -109,6 +109,9 @@ async def get_stinkers_results(
 
             game = get_game_by_id(db_stinker.game_id)
             current_status = db_stinker.game_status
+
+            print('game: ', game)
+            print('current_status: ', current_status)
 
             if current_status != DBGameStatus.COMPLETE:
                 game_status = build_game_status(game)
@@ -121,7 +124,7 @@ async def get_stinkers_results(
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND, detail="Could not find the stinkers for the specified week."
         )
-    
+
     message_body = build_stinker_results_message(stinker_week)
     stinker_week.message_info = MessageInfo(send_message=request.send_message, body=message_body)
 

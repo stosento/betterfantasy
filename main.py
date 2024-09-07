@@ -34,9 +34,9 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Database connection failed: {e}")
         raise e  # Re-raise the exception to prevent the app from starting with a bad DB connection
-    
+
     yield
-    
+
     # Shutdown: You can add any cleanup logic here if needed
     print("Shutting down the application")
 

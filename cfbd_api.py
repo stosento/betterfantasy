@@ -53,3 +53,17 @@ def get_game_by_id(game_id):
     api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
     game = api_instance.get_games(year=int(CURRENT_YEAR), id=game_id)
     return game[0]
+
+def get_defensive_weekly_stats(week_number):
+    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    conference_abbreviation = "B1G"
+    season_type = "regular"
+    category = "defensive"
+    stats = api_instance.get_player_game_stats(
+        year=int(CURRENT_YEAR),
+        week=week_number,
+        season_type=season_type,
+        conference=conference_abbreviation,
+        category=category
+    )
+    return stats

@@ -1,19 +1,20 @@
 import datetime
 from datetime import datetime
+from dateutil import parser
 from models.db_models import GameStatus as DBGameStatus
 import pytz
 
 def is_past_kickoff(kickoff):
     try:
         # Parse the kickoff string
-        kickoff_datetime = datetime.strptime(kickoff, "%A @ %I:%M%p EST (%m/%d/%Y)")
+        kickoff_datetime = parser.isoparse(kickoff)
 
-        # Set the time zone to EST
-        est = pytz.timezone('US/Eastern')
-        kickoff_datetime = est.localize(kickoff_datetime)
+        # Ensure the kickoff time is timezone-aware (UTC)
+        if kickoff_datetime.tzinfo is None:
+            kickoff_datetime = pytz.utc.localize(kickoff_datetime)
 
-        # Get current time in EST
-        current_time = datetime.now(est)
+        # Get current time in UTC
+        current_time = datetime.now(pytz.utc)
 
         # Compare kickoff time with current time
         return current_time > kickoff_datetime
@@ -33,7 +34,7 @@ def build_game_status(game):
 
     if game.completed:
         status = DBGameStatus.COMPLETE
-    elif is_past_kickoff(game.kickoff):
+    elif is_past_kickoff(game.start_date):
         status = DBGameStatus.IN_PROGRESS
 
     return status

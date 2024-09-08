@@ -11,7 +11,7 @@ from services.webhook import send_message_to_webhook
 from services.build_stinkers import find_stinkers, build_db_stinker
 from services.database_utils import update_db_stinker
 from populators.db_stinkers import create_db_stinker, create_stinker_week_from_db
-from utils.time import is_past_kickoff, build_game_status
+from utils.time import build_game_status
 from utils.messages import build_stinker_results_message
 from cfbd_api import get_game_by_id
 

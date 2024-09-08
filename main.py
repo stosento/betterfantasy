@@ -10,7 +10,7 @@ from services.build_stinkers import find_stinkers
 from services.security import get_api_key
 from utils.logger import setup_logging
 from database import get_db, engine
-from routers import stinkers, admin
+from routers import stinkers, admin, defense
 from services.database_utils import clear_all_tables
 import models
 from models.stinkers import Week, StinkersRequest, StinkersResultsRequest, StinkerWeek, StinkerInfo, Stinker, GameInfo, MessageInfo
@@ -47,6 +47,7 @@ def create_app() -> FastAPI:
 
     # Include routers
     app.include_router(stinkers.router)
+    app.include_router(defense.router)
     app.include_router(admin.router)
 
     @app.get("/", tags=["Root"])

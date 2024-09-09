@@ -39,22 +39,22 @@ def build_message(fantasy_team, team, game, team_record, kickoff):
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team
     body = f'{team_info}, {"home vs" if is_home else "playing @"} {opponent_info}'
-    message = f'{fantasy_team} has {body} -- {kickoff}'
+    message = f'{fantasy_team} has {body}\n{kickoff}'
 
     return message
 
-def build_game_start(start_date, start_time_tbd): #TODO
+def build_game_start(start_date, start_time_tbd):
     # Parse the ISO format date string
     dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-    
+
     # Convert to EST
     est = pytz.timezone('US/Eastern')
     dt_est = dt.astimezone(est)
-    
+
     # Format the date and time
     day = dt_est.strftime('%A')
     date = dt_est.strftime('%m/%d/%Y')
-    
+
     if not start_time_tbd:
         time = dt_est.strftime('%I:%M%p')
         return f"{day} @ {time} EST ({date})"
@@ -72,7 +72,7 @@ def build_stinker_info(fantasy_team, team, game, team_record):
     stinker = create_stinker(team=team, record=team_record)
     game_info = create_game_info(game_id=game.id, game_complete=game.completed, home_team=game.home_team, home_score=home_score, away_team=game.away_team, away_score=away_score, kickoff=kickoff)
     stinker_info = create_stinker_info(fantasy_team=fantasy_team, stinker=stinker, game_info=game_info, text_line=message)
-    
+
     return stinker_info
 
 def format_date(week_str):
@@ -124,18 +124,30 @@ async def find_stinkers(target_date, send_message, fantasy_teams):
         stinker_info_list.append(stinker_info)
 
     # Build the response object
-    full_text_body = "\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
+    full_text_body = "\n\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
     message_info = create_message_info(send_message=send_message, body=full_text_body)
     stinker_week = create_stinker_week(week=week, date=target_date, stinkers=stinker_info_list, message_info=message_info)
 
     return stinker_week
 
-def build_db_stinker(game, db_stinker: DBStinker, status: DBGameStatus):
-    home_score = game.home_points if game.home_points else 0
-    away_score = game.away_points if game.away_points else 0
+def build_db_stinker(game, db_stinker: DBStinker, status: DBGameStatus, scoreboard):
+    home_score = 0
+    away_score = 0
+
+    if status == DBGameStatus.IN_PROGRESS:
+        scoreboard_game = get_game_from_scoreboard(game.id, scoreboard)
+        home_score = scoreboard_game.home_team.points
+        away_score = scoreboard_game.away_team.points
 
     db_stinker.home_score = home_score
     db_stinker.away_score = away_score
     db_stinker.game_status = status
 
     return db_stinker
+
+def get_game_from_scoreboard(game_id, scoreboard):
+    for game in scoreboard:
+        if game.id == game_id:
+            return game
+
+    return None

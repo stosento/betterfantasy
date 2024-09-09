@@ -13,7 +13,7 @@ from services.database_utils import update_db_stinker
 from populators.db_stinkers import create_db_stinker, create_stinker_week_from_db
 from utils.time import build_game_status
 from utils.messages import build_stinker_results_message
-from cfbd_api import get_game_by_id
+from cfbd_api import get_game_by_id, get_scoreboard
 
 from fastapi import Security, HTTPException
 from starlette.status import HTTP_404_NOT_FOUND
@@ -104,18 +104,16 @@ async def get_stinkers_results(
 
     if db_existing_week:
         db_stinkers = db.query(DBStinker).filter(DBStinker.week_number == week_number).all()
+        scoreboard = get_scoreboard()
 
         for db_stinker in db_stinkers:
 
             game = get_game_by_id(db_stinker.game_id)
             current_status = db_stinker.game_status
 
-            print('game: ', game)
-            print('current_status: ', current_status)
-
             if current_status != DBGameStatus.COMPLETE:
                 game_status = build_game_status(game)
-                db_stinker = build_db_stinker(game, db_stinker, game_status)
+                db_stinker = build_db_stinker(game, db_stinker, game_status, scoreboard)
                 update_db_stinker(db_stinker, db)
 
         stinker_week = create_stinker_week_from_db(db_existing_week, db_stinkers)

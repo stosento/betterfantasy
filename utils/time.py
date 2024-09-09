@@ -28,8 +28,6 @@ def is_past_kickoff(kickoff):
         return False
 
 def build_game_status(game):
-
-    print('game in build_game_status', game)
     status = DBGameStatus.NOT_STARTED
 
     if game.completed:

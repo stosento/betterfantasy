@@ -39,7 +39,7 @@ def build_message(fantasy_team, team, game, team_record, kickoff):
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team
     body = f'{team_info}, {"home vs" if is_home else "playing @"} {opponent_info}'
-    message = f'{fantasy_team} has {body}\n{kickoff}'
+    message = f'{fantasy_team} has {body}\n{kickoff}\n'
 
     return message
 

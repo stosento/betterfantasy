@@ -15,5 +15,11 @@
             "dest": "main.py"
         }
     ],
+    "crons": [
+        {
+            "path": "/api/cron",
+            "schedule": "0 5 * * *"
+        }
+    ],
     "buildCommand": "echo 'Starting build command' && python apply_migrations.py && pip install -r requirements.txt"
 }

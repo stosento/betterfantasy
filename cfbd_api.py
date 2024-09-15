@@ -70,6 +70,5 @@ def get_defensive_weekly_stats(week_number):
 
 def get_scoreboard():
     api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    conference_abbreviation = "B1G"
-    games = api_instance.get_scoreboard(conference=conference_abbreviation)
+    games = api_instance.get_scoreboard()
     return games

@@ -136,8 +136,13 @@ def build_db_stinker(game, db_stinker: DBStinker, status: DBGameStatus, scoreboa
 
     if status == DBGameStatus.IN_PROGRESS:
         scoreboard_game = get_game_from_scoreboard(game.id, scoreboard)
-        home_score = scoreboard_game.home_team.points
-        away_score = scoreboard_game.away_team.points
+        if scoreboard_game is not None:
+            home_score = scoreboard_game.home_team.points
+            away_score = scoreboard_game.away_team.points
+
+    elif status == DBGameStatus.COMPLETE:
+        home_score = game.home_points
+        away_score = game.away_points
 
     db_stinker.home_score = home_score
     db_stinker.away_score = away_score

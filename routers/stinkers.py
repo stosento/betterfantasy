@@ -109,12 +109,9 @@ async def get_stinkers_results(
         for db_stinker in db_stinkers:
 
             game = get_game_by_id(db_stinker.game_id)
-            current_status = db_stinker.game_status
-
-            if current_status != DBGameStatus.COMPLETE:
-                game_status = build_game_status(game)
-                db_stinker = build_db_stinker(game, db_stinker, game_status, scoreboard)
-                update_db_stinker(db_stinker, db)
+            game_status = build_game_status(game)
+            db_stinker = build_db_stinker(game, db_stinker, game_status, scoreboard)
+            update_db_stinker(db_stinker, db)
 
         stinker_week = create_stinker_week_from_db(db_existing_week, db_stinkers)
 

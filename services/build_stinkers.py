@@ -124,7 +124,7 @@ async def find_stinkers(target_date, send_message, fantasy_teams):
         stinker_info_list.append(stinker_info)
 
     # Build the response object
-    full_text_body = "\n\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
+    full_text_body = "\n".join([stinker_info.text_line for stinker_info in stinker_info_list])
     message_info = create_message_info(send_message=send_message, body=full_text_body)
     stinker_week = create_stinker_week(week=week, date=target_date, stinkers=stinker_info_list, message_info=message_info)
 

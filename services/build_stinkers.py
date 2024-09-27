@@ -5,7 +5,7 @@ from datetime import datetime
 
 from models.db_models import Stinker as DBStinker, GameStatus as DBGameStatus
 
-from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict, get_game_by_id
+from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict, get_game_by_id, get_betting_lines
 from constants import ACCEPTABLE_CONFERENCES
 from populators.stinkers import (
     create_game_info,
@@ -36,9 +36,12 @@ def get_bottom_n_teams(fpi_dict, bottom_n):
 def build_message(fantasy_team, team, game, team_record, kickoff):
     team_info = f'{team} ({team_record})'
 
+    # Make call to get betting line
+    betting = get_betting_lines(team)
+
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team
-    body = f'{team_info}, {"home vs" if is_home else "playing @"} {opponent_info}'
+    body = f'{team_info}, {"home vs" if is_home else "playing @"} {opponent_info} -- [{betting}]'
     message = f'{fantasy_team} has {body}\n{kickoff}\n'
 
     return message

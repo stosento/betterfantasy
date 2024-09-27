@@ -1,6 +1,7 @@
 import os
 import cfbd
 from dotenv import load_dotenv
+from pprint import pprint
 
 from constants import ACCEPTABLE_CONFERENCES
 
@@ -72,3 +73,14 @@ def get_scoreboard():
     api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
     games = api_instance.get_scoreboard()
     return games
+
+def get_betting_lines(team):
+    api_instance = cfbd.BettingApi(cfbd.ApiClient(configuration))
+    betting = api_instance.get_lines(year=int(CURRENT_YEAR), team=team)
+
+    if betting and betting[0].lines:
+        first_line = betting[0].lines[0]
+        formatted_spread = first_line.formatted_spread
+        return formatted_spread
+    else:
+        return None

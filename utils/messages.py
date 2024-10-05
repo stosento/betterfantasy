@@ -1,4 +1,5 @@
 from models.stinkers import StinkerWeek, GameStatus
+from cfbd_api import get_scoreboard
 
 def build_stinker_assignments_message(stinker_week:StinkerWeek):
     message_body = "\n".join([stinker.text_line for stinker in stinker_week.stinkers])

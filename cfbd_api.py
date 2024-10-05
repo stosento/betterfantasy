@@ -79,6 +79,7 @@ def get_betting_lines(team, week):
     betting = api_instance.get_lines(year=int(CURRENT_YEAR), week=week, team=team)
 
     if betting and betting[0].lines:
+        print(betting[0].lines[0])
         first_line = betting[0].lines[0]
         formatted_spread = first_line.formatted_spread
         return formatted_spread

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from models.db_models import Stinker as DBStinker, GameStatus as DBGameStatus
 
-from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict, get_game_by_id, get_betting_lines
+from cfbd_api import get_fpi_ratings_map, get_next_week_games, get_records_dict, get_game_by_id, get_betting_lines, get_scoreboard
 from constants import ACCEPTABLE_CONFERENCES
 from populators.stinkers import (
     create_game_info,

@@ -7,6 +7,8 @@ def build_stinker_assignments_message(stinker_week:StinkerWeek):
 def build_stinker_results_message(stinker_week:StinkerWeek):
     messages = []
 
+    scoreboard = get_scoreboard()
+
     for item in stinker_week.stinkers:
         assigned_team = item.stinker.team
         game = item.game_info
@@ -16,12 +18,32 @@ def build_stinker_results_message(stinker_week:StinkerWeek):
         opponent_score = game.away_score if assigned_team == game.home_team else game.home_score
 
         line1 = f"{item.fantasy_team}'s Stinker -- {assigned_team} ({item.stinker.record}) \n"
-        line2 = f"Game Status: {game_status}\n"
+        line2 = f"{game.home_team} {game.home_score} - {game.away_team} {game.away_score}\n"
+        line3 = f"{game.kickoff}\n"
 
-        if game_status == GameStatus.NOT_STARTED:
-            line2 = f"Game Status: {game_status} -- {game.kickoff}\n"
-
-        line3 = f"{game.home_team} {game.home_score} - {game.away_team} {game.away_score}\n"
+        if game_status == GameStatus.IN_PROGRESS:
+            game = get_game_by_id(game.id, scoreboard)
+            period = game.period
+            querter = ""
+            switch (period) {
+                case 1:
+                    quarter = "1st Quarter"
+                    break
+                case 2:
+                    quarter = "2nd Quarter"
+                    break
+                case 3:
+                    quarter = "3rd Quarter"
+                    break
+                case 4:
+                    quarter = "4th Quarter"
+                    break
+                default:
+                    quarter = "Overtime\n"
+            }
+            line3 = f"{game.clock} {quarter}\n"
+        elif game_status == GameStatus.COMPLETE:
+            line3 = "FINAL\n"
 
         stinker_message = line1 + line2 + line3
         
@@ -34,3 +56,10 @@ def build_stinker_results_message(stinker_week:StinkerWeek):
 
     message_body = "\n".join([message for message in messages])
     return message_body
+
+def get_game_from_scoreboard(game_id, scoreboard):
+    for game in scoreboard:
+        if game.id == game_id:
+            return game
+
+    return None

@@ -23,7 +23,7 @@ def build_stinker_results_message(stinker_week:StinkerWeek):
         line3 = f"{game.kickoff}\n"
 
         if game_status == GameStatus.IN_PROGRESS:
-            game = get_game_from_scoreboard(game.id, scoreboard)
+            game = get_game_from_scoreboard(game.game_id, scoreboard)
             period = game.period
             querter = ""
             if period == 1:

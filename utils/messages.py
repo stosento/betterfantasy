@@ -25,22 +25,16 @@ def build_stinker_results_message(stinker_week:StinkerWeek):
             game = get_game_by_id(game.id, scoreboard)
             period = game.period
             querter = ""
-            switch (period) {
-                case 1:
-                    quarter = "1st Quarter"
-                    break
-                case 2:
-                    quarter = "2nd Quarter"
-                    break
-                case 3:
-                    quarter = "3rd Quarter"
-                    break
-                case 4:
-                    quarter = "4th Quarter"
-                    break
-                default:
-                    quarter = "Overtime\n"
-            }
+            if period == 1:
+                quarter = "1st Quarter"
+            elif period == 2:
+                quarter = "2nd Quarter"
+            elif period == 3:
+                quarter = "3rd Quarter"
+            elif period == 4:
+                quarter = "4th Quarter"
+            else:
+                quarter = "Overtime"
             line3 = f"{game.clock} {quarter}\n"
         elif game_status == GameStatus.COMPLETE:
             line3 = "FINAL\n"

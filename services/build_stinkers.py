@@ -33,11 +33,11 @@ def get_bottom_n_teams(fpi_dict, bottom_n):
     sorted_dict = dict(sorted(fpi_dict.items(), key=lambda item: item[1]))
     return list(sorted_dict.keys())[0:bottom_n]
 
-def build_message(fantasy_team, team, game, team_record, kickoff):
+def build_message(fantasy_team, team, week, game, team_record, kickoff):
     team_info = f'{team} ({team_record})'
 
     # Make call to get betting line
-    betting = get_betting_lines(team)
+    betting = get_betting_lines(team, week)
 
     is_home = game.home_team == team
     opponent_info = game.away_team if is_home else game.home_team
@@ -64,10 +64,10 @@ def build_game_start(start_date, start_time_tbd):
     else:
         return f"{day} @ TBD EST ({date})"
 
-def build_stinker_info(fantasy_team, team, game, team_record):
+def build_stinker_info(fantasy_team, team, week, game, team_record):
 
     kickoff = build_game_start(game.start_date, game.start_time_tbd)
-    message = build_message(fantasy_team, team, game, team_record, kickoff)
+    message = build_message(fantasy_team, team, week, game, team_record, kickoff)
 
     home_score = game.home_points if game.completed else 0
     away_score = game.away_points if game.completed else 0
@@ -123,7 +123,7 @@ async def find_stinkers(target_date, send_message, fantasy_teams):
         next_game = bottom_games[team]
         team_record = records_dict.get(team, '0-0')
 
-        stinker_info = build_stinker_info(fantasy_team, team, next_game, team_record)
+        stinker_info = build_stinker_info(fantasy_team, team, week, next_game, team_record)
         stinker_info_list.append(stinker_info)
 
     # Build the response object

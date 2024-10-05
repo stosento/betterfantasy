@@ -74,9 +74,9 @@ def get_scoreboard():
     games = api_instance.get_scoreboard()
     return games
 
-def get_betting_lines(team):
+def get_betting_lines(team, week):
     api_instance = cfbd.BettingApi(cfbd.ApiClient(configuration))
-    betting = api_instance.get_lines(year=int(CURRENT_YEAR), team=team)
+    betting = api_instance.get_lines(year=int(CURRENT_YEAR), week=week, team=team)
 
     if betting and betting[0].lines:
         first_line = betting[0].lines[0]
